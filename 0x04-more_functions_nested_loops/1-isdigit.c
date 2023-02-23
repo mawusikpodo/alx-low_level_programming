@@ -11,7 +11,7 @@ int _isdigit(int c)
 {
 	int digit = 0, i;
 
-	for (i = 48; i <=57; i++)
+	for (i = 48; i <= 57; i++)
 	{
 		if (c == i)
 		{
