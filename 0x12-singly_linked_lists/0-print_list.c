@@ -9,7 +9,7 @@
 
 size_t print_list(const list_t *h)
 {
-	unsigned int counts;
+	unsigned int counts = 0;
 
 	while (h)
 	{
