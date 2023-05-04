@@ -9,7 +9,7 @@ int get_endianness(void)
 	uint32_t i = 1;
 
 	if ((i & 0xFF) == 1)
-		return 1;
+		return (1);
 	else
-		return 0;
+		return (0);
 }
