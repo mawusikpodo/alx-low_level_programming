@@ -1,84 +1,63 @@
 #include "main.h"
 
-
 /**
- * error - print an error message and exit with the given error code
- * @msg: the error message format string
- * @file: the file name to include in the error message
+ * close_w - close function
+ * @fdread: read
+ * @fdwrite: write
  */
-void error(char *msg, char *file)
+void close_w(int fdread, int fdwrite)
 {
-	dprintf(STDERR_FILENO, msg, file);
-	exit(errno);
+	if (close(fdwrite) == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fdwrite);
+		exit(100); }
+	if (close(fdread) == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fdread);
+		exit(100); }
 }
 
 /**
- * copy_file - copy the content of one file to another
- * @file_from: the name of the source file
- * @file_to: the name of the destination file
- */
-void copy_file(char *file_from, char *file_to)
-{
-	int fd_from, fd_to;
-	char buffer[BUFFER_SIZE];
-	ssize_t num_read, num_written;
-
-	fd_from = open(file_from, O_RDONLY);
-	if (fd_from == -1)
-	{
-		error("Error: Can't read from file %s\n", file_from);
-	}
-
-	fd_to = open(file_to, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd_to == -1)
-	{
-		error("Error: Can't write to %s\n", file_to);
-	}
-
-	while ((num_read = read(fd_from, buffer, BUFFER_SIZE)) > 0)
-	{
-		num_written = write(fd_to, buffer, num_read);
-		if (num_written != num_read)
-		{
-			error("Error: Can't write to %s\n", file_to);
-		}
-	}
-	if (num_read == -1)
-	{
-		error("Error: Can't read from file %s\n", file_from);
-	}
-
-	if (close(fd_from) == -1)
-	{
-		error("Error: Can't close fd %d\n", file_from);
-	}
-
-	if (close(fd_to) == -1)
-	{
-		error("Error: Can't close fd %d\n", file_to);
-	}
-}
-
-/**
- * main - copy the content of one file to another
- * @argc: the number of command-line arguments
- * @argv: an array of strings containing the command-line arguments
- * Return: 0 on success, 97-100 on error
+ * main - Function that copies the content of a file to another file
+ * @argc: argument of count
+ * @argv: argument of array
+ * Return: exit_success if success, exit error 97, 98, 99, 100
  */
 int main(int argc, char *argv[])
 {
+	char buffer[BUFFER_SIZE];
 	char *file_from, *file_to;
+	int fdread, fdwrite;
+	ssize_t rd = 1024, wr;
 
 	if (argc != 3)
 	{
-		dprintf(STDERR_FILENO, "Usage: %s file_from file_to\n", argv[0]);
-		exit(97);
-	}
-
+		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
+		exit(97); }
 	file_from = argv[1];
 	file_to = argv[2];
-
-	copy_file(file_from, file_to);
-
+	fdread = open(file_from, O_RDONLY);
+	if (fdread == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", file_from);
+		exit(98); }
+	fdwrite = open(file_to, O_CREAT | O_TRUNC | O_WRONLY | O_APPEND, 0664);
+	if (fdwrite == -1)
+	{
+		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", file_to);
+		exit(99); }
+	while (rd == BUFFER_SIZE)
+	{
+		rd = read(fdread, buffer, BUFFER_SIZE);
+		if (rd == -1)
+		{
+			dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", file_from);
+			exit(98); }
+		wr = write(fdwrite, buffer, rd);
+		if (wr == -1)
+		{
+			dprintf(STDERR_FILENO, "Error: Can't write to %s\n", file_to);
+			exit(99); }}
+	close_w(fdread, fdwrite);
 	return (0);
 }
