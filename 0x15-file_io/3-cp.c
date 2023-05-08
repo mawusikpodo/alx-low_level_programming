@@ -1,14 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <string.h>
+#include "main.h"
 
-#define BUFFER_SIZE 1024
-
-void error(char *msg, char *file);
-void copy_file(char *file_from, char *file_to);
 
 /**
  * error - print an error message and exit with the given error code
